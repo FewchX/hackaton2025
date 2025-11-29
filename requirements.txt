@@ -1,5 +1,6 @@
-speech_recognition
+speechrecognition
 pyttsx3
 python-dotenv
 requests
 rapidfuzz
+pyaudio
