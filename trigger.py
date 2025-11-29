@@ -19,7 +19,12 @@ RECOGNITION_TIMEOUT = int(os.getenv("RECOGNITION_TIMEOUT", 10))
 
 def setup_recognizer():
     recognizer = sr.Recognizer()
-    recognizer.energy_threshold = 4000
+    # Dynamic energy threshold - adjusts automatically to ambient noise
+    recognizer.dynamic_energy_threshold = True
+    recognizer.energy_threshold = 1000 # Lower threshold for better sensitivity
+    recognizer.dynamic_energy_adjustment_damping = 0.15
+    recognizer.dynamic_energy_ratio = 1.5
+    recognizer.pause_threshold = 0.8  # Shorter pause detection
     return recognizer
 
 def listen_for_wake_word():
@@ -29,12 +34,14 @@ def listen_for_wake_word():
     print(f"🎤 Listening for wake word: '{WAKE_WORD}'...")
     
     with mic as source:
-        recognizer.adjust_for_ambient_noise(source, duration=1)
+        # Longer noise adjustment for better accuracy
+        recognizer.adjust_for_ambient_noise(source, duration=2)
     
     while True:
         try:
             with mic as source:
-                audio = recognizer.listen(source, timeout=2, phrase_time_limit=3)
+                # More forgiving timeouts for wake word
+                audio = recognizer.listen(source, timeout=5, phrase_time_limit=5)
             
             # Use Google Speech Recognition for Slovak
             text = recognizer.recognize_google(audio, language=LANGUAGE).lower()
@@ -58,8 +65,10 @@ def listen_for_question(recognizer):
     
     try:
         with mic as source:
-            recognizer.adjust_for_ambient_noise(source, duration=0.5)
-            audio = recognizer.listen(source, timeout=RECOGNITION_TIMEOUT, phrase_time_limit=30)
+            # Adjust for current ambient noise
+            recognizer.adjust_for_ambient_noise(source, duration=1.5)
+            # More forgiving timeouts for questions
+            audio = recognizer.listen(source, timeout=RECOGNITION_TIMEOUT, phrase_time_limit=15)
         
         question = recognizer.recognize_google(audio, language=LANGUAGE)
         print(f"📝 Question: {question}")
@@ -76,13 +85,12 @@ def listen_for_question(recognizer):
         return None
 
 def send_to_n8n(question):
-
-    if not N8N_WEBHOOK_URL or N8N_WEBHOOK_URL == "YOUR_N8N_WEBHOOK_URL":
+    if not N8N_WEBHOOK_URL:
         print("⚠️  N8N webhook URL not configured. Skipping n8n integration.")
         return None
     
     payload = {
-        "question": question,
+        "text": f"Anka, {question}",
         "timestamp": datetime.now().isoformat(),
         "language": "Slovak"
     }
@@ -90,14 +98,17 @@ def send_to_n8n(question):
     try:
         response = requests.post(N8N_WEBHOOK_URL, json=payload)
         response.raise_for_status()
-        print(f"✅ Sent to n8n. Response: {response.json()}")
-        return response.json()
+        print(f"✅ Sent to n8n. Status: {response.status_code}")
+        print(f"Response text: '{response.text}'")
+        if response.text:
+            print(f"Response length: {len(response.text)} characters")
+        return response.text
     except requests.exceptions.RequestException as e:
         print(f"❌ Failed to send to n8n: {e}")
         return None
 
 def send_to_openai(question):
-    if not OPENAI_API_KEY or OPENAI_API_KEY == "YOUR_OPENAI_API_KEY":
+    if not OPENAI_API_KEY:
         print("⚠️  OpenAI API key not configured.")
         return None
     
@@ -128,12 +139,12 @@ def send_to_openai(question):
 
 def main():
     print("=" * 50)
-    print("Slovak Voice Assistant - Anka")
+    print("Slovak Voice Assistant - Anka (Enhanced)")
     print("=" * 50)
-    print("Setup Instructions:")
-    print("1. Get Picovoice Access Key from: https://console.picovoice.ai")
-    print("2. Set your N8N webhook URL in the config")
-    print("3. Optionally set OpenAI API key for direct AI processing")
+    print("Improvements:")
+    print("✓ Dynamic noise adjustment")
+    print("✓ Better sensitivity in noisy environments")
+    print("✓ More forgiving speech recognition")
     print("=" * 50)
     
     recognizer = setup_recognizer()
