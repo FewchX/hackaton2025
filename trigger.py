@@ -32,17 +32,17 @@ def listen_for_wake_word():
     recognizer = setup_recognizer()
     mic = sr.Microphone()
     
-    print(f"\n👂 Listening for wake word '{WAKE_WORD}'...")
+    print(f"\n Listening for wake word '{WAKE_WORD}'...")
     
     with mic as source:
-        print("🔧 Calibrating microphone for noisy environment...")
+        print(" Calibrating microphone for noisy environment...")
         print("   (Please stay quiet for 5 seconds)")
         recognizer.adjust_for_ambient_noise(source, duration=5)
         
         # Get current energy level
         energy_level = recognizer.energy_threshold
-        print(f"✅ Ready! Energy threshold: {energy_level:.0f}")
-        print(f"💡 Tip: Speak CLEARLY and LOUDLY near your microphone\n")
+        print(f" Ready! Energy threshold: {energy_level:.0f}")
+        print(f" Tip: Speak CLEARLY and LOUDLY near your microphone\n")
     
     while True:
         try:
@@ -66,17 +66,17 @@ def listen_for_wake_word():
                     best_match = word
             
             # Accept if similarity is 70% or higher
-            if best_score >= 70:
-                print(f"   ✓ Heard: '{text}' → Matched '{best_match}' ({best_score:.0f}% similar)     ")
-                print(f"✅ Wake word '{WAKE_WORD}' detected!")
+            if best_score >= 30:
+                print(f"  Heard: '{text}' → Matched '{best_match}' ({best_score:.0f}% similar)     ")
+                print(f"  Wake word '{WAKE_WORD}' detected!")
                 return True
             else:
-                print(f"   ✗ Heard: '{text}' → Best: '{best_match}' ({best_score:.0f}% similar)       ")
+                print(f"  Heard: '{text}' → Best: '{best_match}' ({best_score:.0f}% similar)       ")
         
         except sr.UnknownValueError:
             print("   [...]", end='\r')  # Show we're still here
         except sr.RequestError as e:
-            print(f"\n❌ API error: {e}")
+            print(f"\n API error: {e}")
         except sr.WaitTimeoutError:
             pass  # Timeout, keep listening
 
@@ -93,17 +93,17 @@ def listen_for_question():
             audio = recognizer.listen(source, timeout=RECOGNITION_TIMEOUT, phrase_time_limit=20)
         
         question = recognizer.recognize_google(audio, language=LANGUAGE)
-        print(f"📝 Question: \"{question}\"")
+        print(f" Question: \"{question}\"")
         return question
     
     except sr.UnknownValueError:
-        print("❌ Sorry, I didn't understand that")
+        print(" Sorry, I didn't understand that")
         return None
     except sr.RequestError as e:
-        print(f"❌ Speech recognition error: {e}")
+        print(f" Speech recognition error: {e}")
         return None
     except sr.WaitTimeoutError:
-        print("❌ No question detected")
+        print(" No question detected")
         return None
 
 def send_to_n8n_and_speak(question):
@@ -124,7 +124,7 @@ def send_to_n8n_and_speak(question):
         response = requests.post(N8N_WEBHOOK_URL, json=payload, timeout=30)
         response.raise_for_status()
         
-        print(f"✅ Response received (Status: {response.status_code})")
+        print(f" Response received (Status: {response.status_code})")
         
         # Get the text response
         try:
@@ -141,9 +141,9 @@ def send_to_n8n_and_speak(question):
             tts_engine.say(text_response)
             tts_engine.runAndWait()
             
-            print("✅ Done")
+            print(" Done")
         else:
-            print("⚠️  Empty response from n8n")
+            print("  Empty response from n8n")
         
         return True
         
@@ -155,13 +155,9 @@ def send_to_n8n_and_speak(question):
         return None
 
 def main():
-    print("=" * 60)
-    print("🎙️  ANKA - Voice AI Assistant (FUZZY MATCH MODE)")
-    print("=" * 60)
     print(f"Wake word: '{WAKE_WORD}'")
     print(f"n8n webhook: {N8N_WEBHOOK_URL}")
     print(f"Language: {LANGUAGE}")
-    print("=" * 60)
     print(f"\nSay '{WAKE_WORD}' followed by your question")
     print("Press Ctrl+C to exit anytime\n")
     
@@ -179,7 +175,6 @@ def main():
             print("\n" + "-" * 60)
     
     except KeyboardInterrupt:
-        print("\n\n👋 Shutting down... Goodbye!")
 
 if __name__ == "__main__":
     main()
