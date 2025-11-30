@@ -200,7 +200,7 @@ class VoiceAssistant:
         }
 
         try:
-            response = requests.post(N8N_WEBHOOK_URL, json=payload, timeout=30)
+            response = requests.post(N8N_WEBHOOK_URL, json=payload, timeout=300)
             response.raise_for_status()
             
             # Try to parse as JSON first, fall back to text
