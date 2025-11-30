@@ -4,3 +4,6 @@ python-dotenv
 requests
 rapidfuzz
 pyaudio
+flask
+openai
+pygame
