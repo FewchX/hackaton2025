@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <div class="status-indicator" id="status-indicator">
+                <div class="pulse-ring"></div>
+                <div class="status-dot"></div>
+            </div>
+            <h1 id="status-text">Idle</h1>
+            <button id="toggle-btn" class="btn voice-btn">
+                <span class="icon">▶</span> Voice
+            </button>
+        </header>
+
+        <main class="chat-history" id="chat-history">
+            <!-- Messages will appear here -->
+        </main>
+
+        <footer class="controls">
+            <div class="text-input-container">
+                <input type="text" id="message-input" placeholder="Type your question here..." />
+                <button id="send-button" class="btn send">Send</button>
+            </div>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
