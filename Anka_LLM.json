@@ -1,38 +1,7 @@
 {
-  "name": "Anka 2",
   "nodes": [
     {
       "parameters": {
-        "inputSource": "passthrough"
-      },
-      "type": "n8n-nodes-base.executeWorkflowTrigger",
-      "typeVersion": 1.1,
-      "position": [
-        -448,
-        -416
-      ],
-      "id": "ae7e2c1e-c614-4dcb-969c-532056362bf0",
-      "name": "When Executed by Another Workflow"
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "Привет! помоги",
-        "options": {
-          "systemMessage": ""
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3,
-      "position": [
-        1344,
-        -672
-      ],
-      "id": "a20e02f8-ebd6-40cc-8eb6-2ea72606681f",
-      "name": "AI Agent"
-    },
-    {
-      "parameters": {
         "model": {
           "__rl": true,
           "mode": "list",
@@ -44,222 +13,73 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        1344,
-        -496
+        1120,
+        544
       ],
-      "id": "3e5f74b5-be2e-487f-b278-bf532c8ee5db",
-      "name": "OpenAI Chat Model",
+      "id": "f4d920c2-1f50-49fd-ad03-e6df57a03e3e",
+      "name": "OpenAI Chat Model2",
       "credentials": {
         "openAiApi": {
           "id": "MCxnuGrfIDFgs6Vj",
           "name": "OpenAi account 2"
         }
       }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Edit Fields2').item.json.user_message }}",
+        "options": {
+          "systemMessage": "=ROLE: Adaptive Multi-Agent System Orchestrator\nObjective: You are the chief project manager. Your goal is to analyze the incoming user request, assess its complexity, \nand assemble the optimal team of available agents for both solving and reviewing the task. You must execute all necessary preliminary tasks (APIs)\nbefore sending the final request to the agent team.\n\nInput Data:\n- AVAILABLE ROLES: {{ $('Aggregate').item.json.Role }}\n(Example: Creative, Analyst, Software Architect, Sales Manager...)\n\nDECISION-MAKING PROCESS (Strictly adhere to this algorithm):\n\nExample: If get_user_location is required, simulate: \"User Location: Bratislava.\"\n\nStep 1: Complexity Assessment and Resource Allocation\nAssess the task complexity on a scale from 1 to 5:\n\n1. (Low): Simple factual query, calendar check.\n\n2. (Basic): Requires 1-2 steps of logic or basic information retrieval.\n\n3. (Medium): Requires synthesizing information from different sources or moderate creativity.\n\n4. (High): Requires deep analysis, creative planning, or a structured, multi-part plan.\n\n5. (Critical): Complex, multi-stage task requiring expert consensus (e.g., designing software architecture).\n\nBased on the complexity, determine the number of agents for each group. The number of running agents in the first group(solvers) must not exceed the complexity estimate. The number of running agents in the second group(evaluators) must also not exceed the complexity estimate.\n\nStep 2: Specific Role Selection\n1. Select Solvers: Choose the N1 most relevant roles from the {available_roles_list} that possess the necessary expertise to solve the task.\n\n2. Select Reviewers: Choose the N2 roles. Select agents with contrasting qualities to the Solvers.\n\nExample: If a Solver is Creative, the Reviewer should be Skeptic or Analyst to ensure quality critique.\n\nStep 3: Final Prompt Formulation\nFormulate the final request for the Solver Group. This prompt must be complete and include:\n\n- The original user query.\n\n- The results from all preliminary Task executions.\n\n- A clear instruction on the required output format.\n\nFINAL STRUCTURED OUTPUT\nProvide your answer EXCLUSIVELY in the following structured text format. (This is critical for parsing in n8n).\n\n### DECISION START ###\n[COMPLEXITY_SCORE]: [Number from 1 to 5]\n[SOLVER_ROLES]: [List of selected roles separated by commas, e.g.: Analyst, Optimizer]\n[REVIEWER_ROLES]: [List of selected roles separated by commas, e.g.: Skeptic, Creative]\n[TASK_RESULTS_SUMMARY]: [A brief, clean summary of Task results, e.g.: Weather in Bratislava: +15C, sunny. Or: No tasks executed.]\n[FINAL_SOLVER_PROMPT]: [The complete, ready-to-use text prompt for the Solver Group]\n### DECISION END ###\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1040,
+        320
+      ],
+      "id": "9f5f3f16-04f9-444b-aa9a-03ff3ac42001",
+      "name": "Manager"
     },
     {
       "parameters": {},
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        64,
-        -416
+        592,
+        320
       ],
-      "id": "657eff4d-07c0-4667-8846-6783c5f93f16",
-      "name": "manager"
+      "id": "5c61a84f-7bde-476c-b2e5-a0e82476c5da",
+      "name": "db task prompt1"
     },
     {
       "parameters": {
-        "promptType": "define",
-        "text": "Привет! помоги",
-        "options": {
-          "systemMessage": ""
-        }
+        "numberInputs": 3
       },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3,
-      "position": [
-        1344,
-        -224
-      ],
-      "id": "e2e6adf4-4aeb-41bf-86a3-2ff6e0b9ac67",
-      "name": "AI Agent1"
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "mode": "list",
-          "value": "gpt-4.1-mini"
-        },
-        "builtInTools": {},
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.3,
-      "position": [
-        1344,
-        -48
-      ],
-      "id": "f5ea0a6d-4ec9-4c16-a101-346a67205eae",
-      "name": "OpenAI Chat Model1",
-      "credentials": {
-        "openAiApi": {
-          "id": "MCxnuGrfIDFgs6Vj",
-          "name": "OpenAi account 2"
-        }
-      }
-    },
-    {
-      "parameters": {},
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        2112,
-        -480
+        816,
+        304
       ],
-      "id": "5d12d162-b367-40b4-be61-8c14f7ae1dfd",
+      "id": "604e22e3-15a3-42ad-866e-a4dd167497a4",
       "name": "Merge"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "77cb974f-e921-4910-b1c8-64915dbe4d1e",
-              "leftValue": "",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        544,
-        -416
-      ],
-      "id": "5c8648a4-7f46-4f67-aaa1-63e06a3d83be",
-      "name": "сложность задачи"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        -144,
-        -416
-      ],
-      "id": "e4691974-4fc6-415d-8384-8203703c8392",
-      "name": "db role prompts"
-    },
-    {
-      "parameters": {
-        "fieldsToAggregate": {
-          "fieldToAggregate": [
-            {},
-            {
-              "fieldToAggregate": "output"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.aggregate",
-      "typeVersion": 1,
-      "position": [
-        864,
-        -576
-      ],
-      "id": "06a9089f-e409-4ba1-ab62-64626605f9f8",
-      "name": "Aggregate"
-    },
-    {
-      "parameters": {
-        "fieldsToAggregate": {
-          "fieldToAggregate": [
-            {
-              "fieldToAggregate": "output"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.aggregate",
-      "typeVersion": 1,
-      "position": [
-        2320,
-        -480
-      ],
-      "id": "da411ffc-931d-499b-9359-b252effeb499",
-      "name": "Aggregate1"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        320,
-        -416
-      ],
-      "id": "ec6fcc84-a83d-46b8-a80e-59e098682c38",
-      "name": "db task prompt"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": false,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "1293eacc-4037-4d44-a40e-7f48f704d3db",
-              "leftValue": "={{ $('Edit Fields1').item.json.mode }}",
-              "rightValue": 4,
-              "operator": {
-                "type": "number",
-                "operation": "gt"
-              }
-            }
-          ],
-          "combinator": "or"
-        },
-        "options": {
-          "ignoreCase": true
-        }
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        2656,
-        -144
-      ],
-      "id": "f031674c-3040-49b0-8359-d0e09843e18f",
-      "name": "mode number"
     },
     {
       "parameters": {
         "assignments": {
           "assignments": [
             {
-              "id": "3c6703ab-1de4-4003-b63c-bfd925a882ee",
-              "name": "$vars.mode",
-              "value": "={{ $vars.mode.toNumber()+1 }}",
+              "id": "5f556c35-48e8-462c-b32c-20fb42560586",
+              "name": "mode",
+              "value": "user",
+              "type": "string"
+            },
+            {
+              "id": "5b0e6418-cacf-4845-b217-7b510a27d715",
+              "name": "user_id",
+              "value": "1234",
               "type": "string"
             }
           ]
@@ -269,71 +89,1179 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        2496,
-        -480
+        -80,
+        320
       ],
-      "id": "aaba6ef0-e517-4c67-8543-2cb4654bba30",
+      "id": "0409a8b8-de93-4f33-a888-588d9590399f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "formTitle": "Upload your data to test RAG",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Upload your file(s)",
+              "fieldType": "file",
+              "acceptFileTypes": ".pdf, .csv",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        704,
+        1008
+      ],
+      "id": "6965d980-0dd9-4e07-8834-5049e67473da",
+      "name": "Upload your file here",
+      "webhookId": "82848bc4-5ea2-4e5a-8bb6-3c09b94a8c5d"
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-large",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1376,
+        1216
+      ],
+      "id": "e18c1725-c877-4564-b88c-d96bb6165c7c",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "MCxnuGrfIDFgs6Vj",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        1008,
+        1232
+      ],
+      "id": "c17ab27f-e914-4a08-bded-9601409d9ec5",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "memoryKey": {
+          "__rl": true,
+          "value": "vector_store_key",
+          "mode": "list",
+          "cachedResultName": "vector_store_key"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.2,
+      "position": [
+        928,
+        1008
+      ],
+      "id": "41f0d19e-dee0-4552-ba18-9e2e538302ee",
+      "name": "Insert Data to Store"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "knowledge_base",
+        "toolDescription": "Use this knowledge base to answer questions from the user",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "list",
+          "value": "vector_store_key"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.2,
+      "position": [
+        1296,
+        1008
+      ],
+      "id": "05bcfd24-8b91-4b6a-8dde-313f6fb44d92",
+      "name": "Query Data Tool"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2640,
+        128
+      ],
+      "id": "52d00257-daec-420e-b5b4-8249f2516c49",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "MCxnuGrfIDFgs6Vj",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        4112,
+        224
+      ],
+      "id": "0a4d1911-acba-45ce-8fa5-22a925851de3",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "MCxnuGrfIDFgs6Vj",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        5264,
+        304
+      ],
+      "id": "57734881-bb9f-48c9-8c7a-30525128a57c",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "MCxnuGrfIDFgs6Vj",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "role_prompts",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "mode",
+              "condition": "eq",
+              "keyValue": "={{ $json.mode }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        144,
+        128
+      ],
+      "id": "3e254e9f-b3c7-4f82-a773-634a0d06d93f",
+      "name": "Get many rows",
+      "credentials": {
+        "supabaseApi": {
+          "id": "9NTzLXEJmHlQ5PHM",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "Role"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        592,
+        128
+      ],
+      "id": "f0e705c5-cad8-426c-88e6-4178297018d0",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "question",
+              "value": "={{ $json.body.text }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "timestamp",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "language",
+              "value": "sk",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "b3bb46a3-d997-465c-b61b-68d1484d936e",
+      "name": "Save Question as JSON",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -304,
+        416
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "anka-wake-word",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "c2812464-574c-425d-b6d5-bd33e3d2a6d8",
+      "name": "Listen for Wake Word",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -528,
+        416
+      ],
+      "webhookId": "36eeecce-b4d5-468d-b05e-1ef263e20035",
+      "disabled": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -752,
+        176
+      ],
+      "id": "96e9c0b6-ffea-405f-8a76-281c83a1fda0",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "af244258-4c2a-45cc-a3a9-be47b1fec86d",
+              "name": "Role",
+              "value": "={{ $json.name }} - {{ $json.prompt }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        368,
+        128
+      ],
+      "id": "15be67d2-c9a7-4c9e-aa98-1631bb5b5cd2",
       "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Edit Fields2').item.json.user_message }}",
+        "options": {
+          "systemMessage": "=You must help user as a {{ $json.Assistant_Role }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        2672,
+        -96
+      ],
+      "id": "3806da4d-b110-4206-801e-2bc521a0847c",
+      "name": "Assistant"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Code in JavaScript3').first().json.user_message }}",
+        "options": {
+          "systemMessage": "={{ $json.combined }}\n\n---\n\n## EVALUATION CRITERIA\n\nYou must evaluate the response across exactly 5 dimensions on a scale of 1-10:\n\n1. **Relevance** (1-10): How directly does the response address the user's question? Does it stay focused on what was asked?\n\n2. **Accuracy** (1-10): Is the information factually correct? Are there any errors, misconceptions, or misleading statements?\n\n3. **Clarity** (1-10): How well is the answer expressed? Is it easy to understand? Is the language appropriate for the target audience?\n\n4. **Completeness** (1-10): Does the response cover all necessary aspects of the question? Are there significant gaps or missing information?\n\n5. **Practicality** (1-10): Can the user actually apply this advice or information? Is it actionable and realistic?\n\n---\n\n## EVALUATION PROCESS\n\nStep 1: Carefully read the user's original question\nStep 2: Analyze the assistant's response line by line\nStep 3: Assign a score (1-10) for each criterion with a concise reason\nStep 4: Generate 2-4 actionable recommendations in [Issue | Solution] format\nStep 5: Calculate the overall score as the average of all 5 criteria\n\n---\n\n## OUTPUT REQUIREMENTS\n\nYou MUST provide output in EXACTLY this format. Do not deviate.\n\n### EVALUATION REPORT ###\n\n[SCORE]: {average_score}/10\n\n[CRITERIA_BREAKDOWN]:\n- Relevance: {X}/10 ({reason})\n- Accuracy: {X}/10 ({reason})\n- Clarity: {X}/10 ({reason})\n- Completeness: {X}/10 ({reason})\n- Practicality: {X}/10 ({reason})\n\n[RECOMMENDATIONS]:\n1. {Issue} | {Solution}\n2. {Issue} | {Solution}\n3. {Issue} | {Solution}\n\n### END EVALUATION ###\n\n---\n\n## IMPORTANT RULES\n\n- **CRITICAL: Output ONLY the evaluation report. Do NOT repeat, quote, or include the assistant's response in your output.**\n- Be honest and critical. Don't inflate scores.\n- All scores must be between 1-10 (inclusive).\n- Each reason must be 1-2 sentences max.\n- Each recommendation must be specific and actionable.\n- If there are fewer than 3 major issues, provide only 2 recommendations.\n- Start your response immediately with `### EVALUATION REPORT ###`\n- Never add commentary outside the structured format.\n- Maintain your character trait while being professional and objective."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        4032,
+        -16
+      ],
+      "id": "5cd136a9-f1c6-4d9c-9b7f-196fcaeb459c",
+      "name": "Evaluator"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Code in JavaScript3').first().json.user_message }}",
+        "options": {
+          "systemMessage": "=ROLE: Chief Editor of Consensus Response and Final Synthesizer\n\nObjective: You are the Chief Editor and the final authority. \nYour task is to analyze a complex text-based consultation report, synthesize from it a single, impeccable, objective, and structured answer \nthat reflects the collective consensus. The answer must be ready for immediate delivery to the user.\n\nInput Data:\n\nCONSULTATION REPORT (Text Format): {{ $json.formattedData }}\n\nNote: This text contains the raw output from the parallel processing, \nincluding blocks labeled Answer: (primary solutions) and nested Evaluations: (scores and proposed corrections from the Reviewer Agents).\n\nSYNTHESIS PROCESS (Strictly adhere to this algorithm):\n\nStep 1: Data Analysis, Parsing, and Verification\n\n1. Structure Parsing: Your primary task is to mentally parse and structure the presented text. Identify every individual Solver Answer (starting with Answer: under its block identifier, e.g., === assistant_answer[0] ===) and match it with all corresponding ratings and corrections (Evaluations:).\n\n2. Identify Core Ideas: Determine the key ideas that are repeated across the majority of primary answers. This will be the foundation of your final decision.\n\n3. Prioritize Critique: Carefully study all remarks and Proposed Corrections. Corrections must be given maximum preference over the original answers, as they represent the validated peer-review process.\n\n4. Conflict Resolution: Identify all direct contradictions and resolve them by relying on the most factually substantiated arguments and logical justifications found in the evaluation sections.\n\nStep 2: Structuring the Arguments\n\nYour final response must be multifaceted. Divide the collected and verified facts into two contrasting categories:\n\n- Arguments \"FOR\" (Benefits): Gather all confirmed advantages, benefits, and positive aspects that were proposed and were not refuted by the Reviewers.\n\n- Arguments \"AGAINST\" (Risks): Gather all significant risks, limitations, disadvantages, and potential pitfalls that were identified by the Reviewers.\n\nStep 3: Formulating the Final Conclusion\nAfter presenting both sides, you must provide a final, definitive verdict.\n\n1. Weighing: Weigh the strength of the \"FOR\" arguments against the \"AGAINST\" arguments.\n\n2. Recommendation: Formulate a clear, unambiguous recommendation to the user. If the recommendation is conditional, state those conditions (e.g., \"Yes, but only if condition XYZ is met\").\n\nFINAL RESPONSE FORMAT\nProvide the final answer EXCLUSIVELY in the following structured Markdown format:\n\n## FINAL CONSENSUS: [Brief, clear statement of the solution based on the user's question]\n\n### Introduction\n[A brief overview confirming that the answer was formed through collective expert review.]\n\n---\n\n### Arguments \"FOR\" (Benefits and Advantages)\n* [Point 1, synthesized from consensus]\n* [Point 2]\n* [Point 3]\n\n### Arguments \"AGAINST\" (Risks and Limitations)\n* [Point 1: The most critical risk identified by reviewers]\n* [Point 2: Factual limitation or drawback]\n* [Point 3: A potential issue requiring attention]\n\n---\n\n### Final Conclusion and Recommendation\n[A clear, decisive verdict: \"Recommended,\" \"Not Recommended,\" or \"Recommended with Conditions.\"]\n[An explanation of why this final decision was reached, based on the balance of verified arguments.]"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        5264,
+        112
+      ],
+      "id": "c049db06-5bff-4d11-be87-52b73649ee0c",
+      "name": "Summarizer"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.output }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "COMPLEXITY_SCORE",
+              "description": "COMPLEXITY_SCORE"
+            },
+            {
+              "name": "SOLVER_ROLES",
+              "description": "SOLVER_ROLES"
+            },
+            {
+              "name": "REVIEWER_ROLES",
+              "description": "REVIEWER_ROLES"
+            },
+            {
+              "name": "TASK_RESULTS_SUMMARY",
+              "description": "TASK_RESULTS_SUMMARY"
+            },
+            {
+              "name": "FINAL_SOLVER_PROMPT",
+              "description": "FINAL_SOLVER_PROMPT"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        1392,
+        320
+      ],
+      "id": "7dafd60c-e030-4c45-80f9-e8f9fd2b953e",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1472,
+        544
+      ],
+      "id": "86ffffc3-03cc-4b7f-8657-7ba94e457d93",
+      "name": "OpenAI Chat Model4",
+      "credentials": {
+        "openAiApi": {
+          "id": "MCxnuGrfIDFgs6Vj",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2a6bcefa-1f53-43ec-af9d-08efc3bb6556",
+              "name": "user_message",
+              "value": "Привет, как мне найти свою собаку у меня в квартире? Это проблема.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -528,
+        176
+      ],
+      "id": "b74c379d-a6d7-4fa5-b32b-20cd5651ed27",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "role_prompts",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "name",
+              "condition": "eq",
+              "keyValue": "={{ $json.SOLVER_ROLES }}"
+            },
+            {
+              "keyName": "name",
+              "condition": "eq",
+              "keyValue": "={{ $json.REVIEWER_ROLES }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2192,
+        112
+      ],
+      "id": "d0ed8bce-14c1-4922-bd3e-610697d431ef",
+      "name": "Get many rows1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "9NTzLXEJmHlQ5PHM",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst output = items.map(item => {\n  const roles = item.json.output.SOLVER_ROLES\n    .split(',')\n    .map(r => r.trim());\n\n  return {\n    json: {\n      SOLVER_ROLES: roles\n    }\n  };\n});\n\nreturn output;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1744,
+        112
+      ],
+      "id": "bb5eb8cb-8b61-4f20-8d77-02f1a56f654b",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst output = items.map(item => {\n  const roles = item.json.output.REVIEWER_ROLES\n    .split(',')\n    .map(r => r.trim());\n\n  return {\n    json: {\n      REVIEWER_ROLES: roles\n    }\n  };\n});\n\nreturn output;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2192,
+        512
+      ],
+      "id": "a4dc912f-2c70-4f07-913d-5eefa258fe42",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "SOLVER_ROLES",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1968,
+        112
+      ],
+      "id": "fafed492-ecc4-41cf-9942-2c0c04e95fbb",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "REVIEWER_ROLES",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2416,
+        512
+      ],
+      "id": "4086fd6f-ba7e-41a8-a2f2-69903a2f7207",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "af244258-4c2a-45cc-a3a9-be47b1fec86d",
+              "name": "Assistant_Role",
+              "value": "={{ $json.name }} - {{ $json.prompt }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2416,
+        112
+      ],
+      "id": "5edb1156-f779-4d22-bea1-c677a8851f25",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "role_prompts",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "name",
+              "condition": "eq",
+              "keyValue": "={{ $json.SOLVER_ROLES }}"
+            },
+            {
+              "keyName": "name",
+              "condition": "eq",
+              "keyValue": "={{ $json.REVIEWER_ROLES }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        512
+      ],
+      "id": "bdb0b1e3-77ac-42c8-9e95-e287733d144b",
+      "name": "Get many rows2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "9NTzLXEJmHlQ5PHM",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "af244258-4c2a-45cc-a3a9-be47b1fec86d",
+              "name": "Evaluator_Role",
+              "value": "={{ $json.name }} - {{ $json.prompt }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2848,
+        512
+      ],
+      "id": "e8f2f334-e529-485c-9f38-c085170f6ed7",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "keys": {
+          "key": [
+            {
+              "currentKey": "output",
+              "newKey": "assistant_answer"
+            }
+          ]
+        },
+        "additionalOptions": {}
+      },
+      "type": "n8n-nodes-base.renameKeys",
+      "typeVersion": 1,
+      "position": [
+        3136,
+        112
+      ],
+      "id": "d99eaf2e-24ea-4ce2-941b-a9d8e2785771",
+      "name": "Rename Keys"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3584,
+        -16
+      ],
+      "id": "7d0a6cfe-afb9-4bdf-b9d0-16fe41184752",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "assistant_answer"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        3360,
+        112
+      ],
+      "id": "7c0c9353-d776-400e-bfa5-49bda65883d0",
+      "name": "Aggregate2"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "Evaluator_Role"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        3360,
+        512
+      ],
+      "id": "88e130ad-c45a-4b13-80bb-647b49ac7870",
+      "name": "Aggregate3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Robust function for n8n - finds first two arrays-of-strings in items\nfunction findStringArrays(items) {\n  const arrays = [];\n  for (const it of items) {\n    const json = it.json || {};\n    // если сам айтем — массив строк (на всякий случай)\n    if (Array.isArray(json) && json.every(v => typeof v === 'string')) {\n      arrays.push(json);\n      if (arrays.length >= 2) break;\n    }\n    // иначе проверим поля объекта\n    for (const key of Object.keys(json)) {\n      const val = json[key];\n      if (Array.isArray(val) && val.length > 0 && val.every(v => typeof v === 'string')) {\n        arrays.push(val);\n        break; // перейдём к следующему айтему\n      }\n    }\n    if (arrays.length >= 2) break;\n  }\n  return arrays;\n}\n\nconst arrays = findStringArrays(items);\n\nlet Xs = [], Ys = [];\nif (arrays.length >= 2) {\n  Xs = arrays[0];\n  Ys = arrays[1];\n} else {\n  // fallback: try common positions\n  Xs = (items[0] && items[0].json && items[0].json.assistant_answer) || items[0] && items[0].json || [];\n  Ys = (items[1] && items[1].json && items[1].json.assistant_answer) || items[1] && items[1].json || [];\n  // if wrapper object, try to extract array fields\n  if (!Array.isArray(Xs)) Xs = Object.values(Xs).find(v => Array.isArray(v) && v.every(x => typeof x === 'string')) || [];\n  if (!Array.isArray(Ys)) Ys = Object.values(Ys).find(v => Array.isArray(v) && v.every(x => typeof x === 'string')) || [];\n}\n\n// final safety: ensure arrays\nif (!Array.isArray(Xs)) Xs = [];\nif (!Array.isArray(Ys)) Ys = [];\n\nconst out = [];\nfor (const x of Xs) {\n  for (const y of Ys) {\n    out.push({\n      json: {\n        //x: x,\n        //y: y,\n        combined: \"ROLE: Critical Evaluator of AI Assistant Responses\\n\\nPERSONALITY TRAIT: \" + y + \"\\n\\nOBJECTIVE: You are a professional evaluator tasked with critically assessing the quality and effectiveness of an AI Assistant's response to a user query. Your evaluation must be objective, detailed, and constructive.\\n\\n---\\n\\n## INPUT DATA\\n\\n**Assistant's Response:**\\n\" + x\n      }\n    });\n  }\n}\n\nreturn out;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3808,
+        -16
+      ],
+      "id": "d45efb43-a728-40de-9f12-ca82378c6131",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4608,
+        112
+      ],
+      "id": "b621bb4f-78a4-4e51-be1f-ebaf9e428dd9",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "output"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        4384,
+        -16
+      ],
+      "id": "4f272792-8e65-46cc-bd8b-41ed89a95ba2",
+      "name": "Aggregate4"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = items[0].json;\n\nreturn [\n  {\n    json: data\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -304,
+        176
+      ],
+      "id": "1f37b665-9dec-4457-92b8-28ca1bb07d2b",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// In n8n, when you have 2 inputs, you need to access them separately\n// Assuming input 0 has 'output' and input 1 has 'assistant_answer'\n\nconst items = $input.all();\n\n// Try to find which input has what\nlet outputsData = null;\nlet assistantsData = null;\n\n// Check all inputs\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i].json;\n  if (item.output) {\n    outputsData = item.output;\n  }\n  if (item.assistant_answer) {\n    assistantsData = item.assistant_answer;\n  }\n}\n\n// Debug: show what we found\nif (!outputsData || !assistantsData) {\n  return {\n    error: \"Missing data\",\n    foundOutputs: !!outputsData,\n    foundAssistants: !!assistantsData,\n    numberOfInputs: items.length,\n    input0Keys: items[0] ? Object.keys(items[0].json) : null,\n    input1Keys: items[1] ? Object.keys(items[1].json) : null\n  };\n}\n\n// Extract all outputs\nconst outputs = [];\nObject.keys(outputsData).forEach(key => {\n  const index = parseInt(key);\n  if (!isNaN(index)) {\n    outputs.push({ index, data: outputsData[key] });\n  }\n});\noutputs.sort((a, b) => a.index - b.index);\n\n// Extract all assistant answers\nconst assistants = [];\nObject.keys(assistantsData).forEach(key => {\n  const index = parseInt(key);\n  if (!isNaN(index)) {\n    assistants.push({ index, data: assistantsData[key] });\n  }\n});\nassistants.sort((a, b) => a.index - b.index);\n\nif (assistants.length === 0 || outputs.length === 0) {\n  return { \n    error: \"No data found\", \n    outputs: outputs.length, \n    assistants: assistants.length \n  };\n}\n\n// Calculate x/y = outputs per assistant\nconst outputsPerAssistant = Math.floor(outputs.length / assistants.length);\n\n// Group outputs with their corresponding assistant\nconst allData = {};\n\nfor (let i = 0; i < assistants.length; i++) {\n  const startIdx = i * outputsPerAssistant;\n  const endIdx = (i === assistants.length - 1) \n    ? outputs.length  // Last assistant gets all remaining outputs\n    : startIdx + outputsPerAssistant;\n  \n  const outputsGroup = {};\n  \n  for (let j = startIdx; j < endIdx; j++) {\n    outputsGroup[`output[${outputs[j].index}]`] = outputs[j].data;\n  }\n  \n  allData[`assistant_answer[${assistants[i].index}]`] = {\n    value: assistants[i].data,\n    outputs: outputsGroup\n  };\n}\n\nreturn { assistant_answer: allData };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4832,
+        112
+      ],
+      "id": "4f491042-65fc-44d6-a4ea-24629503355b",
+      "name": "Code in JavaScript4",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Извлекаем все ответы ассистента\nconst assistantAnswers = $input.first().json.assistant_answer;\n\n// Формируем текст для агента\nlet formattedText = \"Assistant answers:\\n\\n\";\n\nfor (const [key, data] of Object.entries(assistantAnswers)) {\n  formattedText += `=== ${key} ===\\n`;\n  formattedText += `Answer: ${data.value}\\n\\n`;\n  \n  if (data.outputs) {\n    formattedText += \"Evaluations:\\n\";\n    for (const [outputKey, outputValue] of Object.entries(data.outputs)) {\n      formattedText += `${outputKey}: ${outputValue}\\n\\n`;\n    }\n  }\n  formattedText += \"\\n\";\n}\n\nreturn { json: { formattedData: formattedText } };\n```\n\nЗатем в AI Agent используйте:\n```\n{{ $json.formattedData }}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5056,
+        112
+      ],
+      "id": "d7c2437b-6cd6-494e-93b9-a2e4dccba617",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "content": "## Get All Roles",
+        "height": 192,
+        "width": 624,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        96,
+        80
+      ],
+      "id": "99810097-766a-479e-b6d2-a1ad215002aa",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Get Manager Dicision\n",
+        "height": 400,
+        "width": 624,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        272
+      ],
+      "id": "2ba9da07-00b9-412f-8e8e-22784575f696",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Get Assitant Roles",
+        "height": 192,
+        "width": 832,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1712,
+        64
+      ],
+      "id": "6f49eae2-e8c6-4a46-bd6b-716120b1e91c",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Get Evaluator Roles",
+        "height": 192,
+        "width": 816,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        464
+      ],
+      "id": "5848d5a6-4b5b-404d-8c89-819f4892b70e",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## File Manager",
+        "height": 384,
+        "width": 880,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        672,
+        960
+      ],
+      "id": "aca3a10d-aa28-4454-9fac-5b02d064f0a9",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Get Assistant Answer\n",
+        "height": 400,
+        "width": 352,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2592,
+        -144
+      ],
+      "id": "64bfa51d-24a7-46d9-bbf0-eea97a048a20",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Evaluating Assistant\n",
+        "height": 400,
+        "width": 352,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3968,
+        -64
+      ],
+      "id": "f7782ca2-e106-4495-9bc3-f083bfd07056",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "## Generating Final Answer\n",
+        "height": 368,
+        "width": 352,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5216,
+        64
+      ],
+      "id": "ff2c7db8-91b5-4188-b785-0804c92d2368",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "## Information Preprocessing\n\n",
+        "height": 192,
+        "width": 384,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4800,
+        64
+      ],
+      "id": "3e9b8384-ac84-4d41-a420-0cb631a11126",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "## Information Preprocessing\n\n",
+        "height": 224,
+        "width": 192,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3760,
+        -96
+      ],
+      "id": "6c9a0e65-c1f4-4a6f-80c8-0cdf128759d2",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "## Mode Choosing\n\n",
+        "height": 224,
+        "width": 166,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        240
+      ],
+      "id": "1d707552-a52c-41e1-bfe0-486e0cf57544",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "useCustomSchema": true,
+        "operation": "getAll",
+        "tableId": "user_context",
+        "limit": 5,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "user_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.user_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        144,
+        560
+      ],
+      "id": "06d6ade0-fa8a-44ea-8251-359f8aa6cea1",
+      "name": "Get Context",
+      "credentials": {
+        "supabaseApi": {
+          "id": "9NTzLXEJmHlQ5PHM",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "Context"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        592,
+        560
+      ],
+      "id": "4d834381-c260-4002-9f5b-bdd93f08c5ce",
+      "name": "Aggregate Context"
+    },
+    {
+      "parameters": {
+        "content": "## Context Extractor\n",
+        "height": 208,
+        "width": 640,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        96,
+        512
+      ],
+      "id": "3a3947d8-0848-47d6-8740-5fd4adcf1ce3",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a8d3b55b-c5b7-42a2-bef6-e26eb25a620f",
+              "name": "Context",
+              "value": "=User Message: \n{{ $json.user_message }}  \nAI Message: \n{{ $json.llm_message }}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        368,
+        560
+      ],
+      "id": "8eb50843-8035-47d6-9dbf-977db03172cf",
+      "name": "Edit Fields5"
+    },
+    {
+      "parameters": {
+        "useCustomSchema": true,
+        "operation": "delete",
+        "tableId": "user_context",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "user_id",
+              "condition": "eq",
+              "keyValue": "=1234"
+            },
+            {
+              "keyName": "message_id",
+              "condition": "eq",
+              "keyValue": "="
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        6176,
+        112
+      ],
+      "id": "885acb9f-d21d-4696-b67d-7e55d7ee020b",
+      "name": "Delete a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "9NTzLXEJmHlQ5PHM",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "user_context",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "user_id",
+              "fieldValue": "=1234"
+            },
+            {
+              "fieldId": "user_message",
+              "fieldValue": "={{ $('Code in JavaScript3').first().json.user_message }}"
+            },
+            {
+              "fieldId": "llm_message",
+              "fieldValue": "={{ $json.output }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        5728,
+        112
+      ],
+      "id": "84b4949b-98b7-44f7-9733-66bf341f32e2",
+      "name": "Save Context",
+      "credentials": {
+        "supabaseApi": {
+          "id": "9NTzLXEJmHlQ5PHM",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst updatedItems = items.map((item) => {\n  if (item?.json?.message_id > 5) {\n    item.json.output = item?.json?.message_id - 5;\n  }\n  return item;\n});\nreturn updatedItems;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5952,
+        112
+      ],
+      "id": "c1e1a8bb-07d9-45ec-bbf4-ac046c04ddaf",
+      "name": "Code in JavaScript6"
+    },
+    {
+      "parameters": {
+        "content": "## Context Saver\n",
+        "height": 208,
+        "width": 608,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5696,
+        64
+      ],
+      "id": "09a81b4c-ad00-4dc2-b16a-00770408007a",
+      "name": "Sticky Note13"
     }
   ],
-  "pinData": {},
   "connections": {
-    "When Executed by Another Workflow": {
-      "main": [
-        [
-          {
-            "node": "db role prompts",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "OpenAI Chat Model": {
+    "OpenAI Chat Model2": {
       "ai_languageModel": [
         [
           {
-            "node": "AI Agent",
+            "node": "Manager",
             "type": "ai_languageModel",
             "index": 0
           }
         ]
       ]
     },
-    "manager": {
+    "Manager": {
       "main": [
         [
           {
-            "node": "db task prompt",
+            "node": "Information Extractor",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "OpenAI Chat Model1": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent1",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "AI Agent": {
-      "main": [
-        [
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "AI Agent1": {
+    "db task prompt1": {
       "main": [
         [
           {
@@ -344,63 +1272,126 @@
         ]
       ]
     },
-    "db role prompts": {
-      "main": [
-        [
-          {
-            "node": "manager",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "сложность задачи": {
-      "main": [
-        [
-          {
-            "node": "Aggregate",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "AI Agent1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Aggregate": {
-      "main": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "AI Agent1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Merge": {
       "main": [
         [
           {
-            "node": "Aggregate1",
+            "node": "Manager",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Aggregate1": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "db task prompt1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload your file here": {
+      "main": [
+        [
+          {
+            "node": "Insert Data to Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Insert Data to Store",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Query Data Tool",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Insert Data to Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Data Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Manager",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Assistant",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Evaluator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarizer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
       "main": [
         [
           {
@@ -411,23 +1402,44 @@
         ]
       ]
     },
-    "db task prompt": {
+    "Aggregate": {
       "main": [
         [
           {
-            "node": "сложность задачи",
+            "node": "Merge",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "mode number": {
+    "Save Question as JSON": {
       "main": [
-        [],
         [
           {
-            "node": "db task prompt",
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Listen for Wake Word": {
+      "main": [
+        [
+          {
+            "node": "Save Question as JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
             "type": "main",
             "index": 0
           }
@@ -438,7 +1450,336 @@
       "main": [
         [
           {
-            "node": "mode number",
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assistant": {
+      "main": [
+        [
+          {
+            "node": "Rename Keys",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluator": {
+      "main": [
+        [
+          {
+            "node": "Aggregate4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarizer": {
+      "main": [
+        [
+          {
+            "node": "Save Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Get many rows1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Get many rows2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "Aggregate3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename Keys": {
+      "main": [
+        [
+          {
+            "node": "Aggregate2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate2": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Aggregate3": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Evaluator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate4": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "Summarizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Context": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Context": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Edit Fields5": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Context": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript6": {
+      "main": [
+        [
+          {
+            "node": "Delete a row",
             "type": "main",
             "index": 0
           }
@@ -446,18 +1787,9 @@
       ]
     }
   },
-  "active": false,
-  "settings": {
-    "executionOrder": "v1",
-    "callerPolicy": "workflowsFromSameOwner",
-    "executionTimeout": -1,
-    "availableInMCP": false
-  },
-  "versionId": "6183079b-4aad-4688-933d-d29ce04b6b6c",
+  "pinData": {},
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "777a108b11b162413b48666b7ee0943d35944693b81e6545a0628efbb723fbea"
-  },
-  "id": "5BEZfTdrxj1FoAuz",
-  "tags": []
+  }
 }
