@@ -1,4 +1,4 @@
-# Voice Assistant with Multi-Agent AI System(TELIT Hackathon2025)
+# Voice Assistant with Multi-Agent AI System "ANKA"(TELIT Hackathon2025)
 
 A hybrid voice and text-based assistant that integrates with a sophisticated n8n multi-agent workflow for intelligent query processing.
 
@@ -231,4 +231,5 @@ Built with:
 - n8n workflow automation
 - Supabase
 - pyttsx3 / pygame
+
 
