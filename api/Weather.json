@@ -1,0 +1,260 @@
+{
+  "name": "Weather",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://api.open-meteo.com/v1/forecast",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "latitude",
+              "value": "=48.7139500"
+            },
+            {
+              "name": "current_weather",
+              "value": "true"
+            },
+            {
+              "name": "longitude",
+              "value": "21.2580800"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        896,
+        32
+      ],
+      "id": "841e524c-4c16-42ef-8bab-4e0cc5b567b3",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "chatgpt-4o-latest",
+          "mode": "list",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are a weather assistant inside an n8n workflow.\n\nYour task:\n1. Read the user's message.\n2. Check whether a clear location is provided:\n   - City name, country, or coordinates (latitude/longitude).\n\n3. If the location is missing or unclear:\n   - Respond ONLY in this JSON format:\n\n{\n  \"status\": \"needs_location\",\n  \"latitude\": null,\n  \"longitude\": null,\n  \"message\": \"Please provide your city name or GPS coordinates.\"\n}\n\n4. If the location is present:\n   - Extract and normalize the coordinates.\n   - Convert city names into coordinates using your geolocation knowledge when possible.\n   - Respond ONLY in this JSON format:\n\n{\n  \"status\": \"location_ready\",\n  \"latitude\": <latitude as number>,\n  \"longitude\": <longitude as number>,\n  \"message\": \"Location extracted successfully.\"\n}\n\nRules:\n- Do not answer with weather information yourself.\n- Only ask for location OR return the extracted location.\n- Be concise and direct.\n- Output ONLY a single JSON object.\n- Do NOT wrap the JSON in ``` or any Markdown.\n- Do NOT add explanations before or after the JSON.\n\nUser Input:\n{{ $json.chatInput }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        368,
+        -96
+      ],
+      "id": "5b6ff734-95cd-4d88-a041-4e70d3349cee",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "MCxnuGrfIDFgs6Vj",
+          "name": "OpenAi account 2"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Access the raw text output from the AI Agent\nconst rawText = $input.first().json.output[0].content[0].text;\n\nconst cleanText = rawText.replace(/```json|```/g, '').trim();\n\n// Parse JSON string into object\nconst parsed = JSON.parse(cleanText);\n\n// Return parsed fields as new item\nreturn [parsed];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        -96
+      ],
+      "id": "e9b32182-28b5-4b77-8461-f6d90fac46b1",
+      "name": "Code in JavaScript",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "chatgpt-4o-latest",
+          "mode": "list",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are a weather assistant.\n\nUsing the following live weather data, write a short, helpful weather report\nin plain natural language (2–4 sentences).\n\nLocation: Kosice, Slovakia\n\nTemperature: {{$json[\"current_weather\"][\"temperature\"]}} °C\nWind Speed: {{$json[\"current_weather\"][\"windspeed\"]}} km/h\nWind Direction: {{$json[\"current_weather\"][\"winddirection\"]}}°\nDay/Night: {{$json[\"current_weather\"][\"is_day\"] === 1 ? \"Day\" : \"Night\"}}\nWeather Code: {{$json[\"current_weather\"][\"weathercode\"]}}\n\nInstructions:\n- Convert the weather code to a human-friendly description.\n- Describe what it feels like outside.\n- Mention temperature and wind in words.\n- Add one simple practical tip (jacket, umbrella, stay indoors, etc.).\n- Keep the tone friendly and compact.\n- Do NOT output JSON — return a normal text paragraph only.\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        1136,
+        32
+      ],
+      "id": "cdee548c-61de-46c1-a8a3-02960a08d8d3",
+      "name": "Message a model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "MCxnuGrfIDFgs6Vj",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        -96
+      ],
+      "id": "f281df46-cdca-4b26-b751-d17a112f7348",
+      "name": "When clicking ‘Execute workflow’",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -144,
+        96
+      ],
+      "id": "feff2ed9-49d4-40ac-adc9-52e153581d7c",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b9508196-a18e-41ae-8f05-342fda70a8aa",
+              "name": "chatInput",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        80,
+        80
+      ],
+      "id": "dae29a9e-dfb0-49da-b2ce-a363110ac9e3",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {
+    "When clicking ‘Execute workflow’": [
+      {
+        "json": {
+          "chatInput": "What is the weather in Warsaw?"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0c47b93c-2255-4390-adf3-a10ec5159c76",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "777a108b11b162413b48666b7ee0943d35944693b81e6545a0628efbb723fbea"
+  },
+  "id": "LUbSLEEPH5MIZj9q",
+  "tags": [
+    {
+      "updatedAt": "2025-11-29T17:04:25.964Z",
+      "createdAt": "2025-11-29T17:04:25.964Z",
+      "id": "Sk9eYnn92ZtQIR3y",
+      "name": "Hackathon2025"
+    }
+  ]
+}

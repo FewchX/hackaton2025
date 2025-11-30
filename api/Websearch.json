@@ -1,0 +1,253 @@
+{
+  "name": "Websearch",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "apiKey",
+              "value": "<__PLACEHOLDER_VALUE__Your Google Custom Search API Key__>",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "searchEngineId",
+              "value": "<__PLACEHOLDER_VALUE__Your Custom Search Engine ID (cx)__>",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "searchQuery",
+              "value": "n8n automation",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "9bdb21d4-82c0-4190-8a17-27504e2dce84",
+      "name": "Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1312,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/customsearch/v1",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "AIzaSyDMTsuHoKyVQokfWsyyEvoCtjtfNlJvFaQ"
+            },
+            {
+              "name": "cx",
+              "value": "67d7fb504cef44b78"
+            },
+            {
+              "name": "q",
+              "value": "={{ $json.chatInput }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0e82394d-3ddd-4dfc-98e7-0fba32d89586",
+      "name": "Google Custom Search API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1536,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        848,
+        -192
+      ],
+      "id": "004366ee-1e7a-4a8b-8076-7820de533b5a",
+      "name": "When chat message received",
+      "webhookId": "1e4e6e8f-170c-4465-b9e9-3bdd42c19540",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.items }}",
+        "options": {
+          "systemMessage": "=You are a helpful search assistant that provides concise, accurate answers based on Google search results.\n\nCritical Rule\n- Satisfy search request {{ $json.queries.request[0].searchTerms }}\nProvide Information only from trusted and acurate sources\n\nYour task is to:\n1. Analyze the search results provided from Google Custom Search API\n2. Extract the most relevant information that answers the user's question\n3. Provide a brief, clear answer (2-3 sentences maximum)\n4. Focus on accuracy and relevance\n5. If the search results don't contain a clear answer, say so honestly\n\nProvide only the answer - no preamble, no explanations about the search process."
+        }
+      },
+      "id": "5c0f9659-2c38-488e-a324-406ceff40643",
+      "name": "Answer Generator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1760,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "chatgpt-4o-latest",
+          "mode": "list",
+          "cachedResultName": "chatgpt-4o-latest"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "67d2537f-5186-4961-b5b5-e2f1d429bce5",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1760,
+        112
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "vReOLo3L9Zd77kyA",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        0
+      ],
+      "id": "b22f26d7-cd38-432d-b35c-85f832353893",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "629bf797-62ad-4c26-a3c0-b20c7af485fc",
+              "name": "chatInput",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        944,
+        16
+      ],
+      "id": "6c7ed5e5-eea7-406d-a4e3-19f45b7214b5",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "Google Custom Search API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Custom Search API": {
+      "main": [
+        [
+          {
+            "node": "Answer Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Answer Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "214174e9-b9a3-475c-bde0-33a60048baeb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "777a108b11b162413b48666b7ee0943d35944693b81e6545a0628efbb723fbea"
+  },
+  "id": "qDDQNR4ngcdca7ZY",
+  "tags": [
+    {
+      "updatedAt": "2025-11-29T17:04:25.964Z",
+      "createdAt": "2025-11-29T17:04:25.964Z",
+      "id": "Sk9eYnn92ZtQIR3y",
+      "name": "Hackathon2025"
+    }
+  ]
+}
