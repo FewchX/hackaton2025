@@ -1,0 +1,1603 @@
+{
+  "name": "Spotify",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -2896,
+        400
+      ],
+      "id": "3aefae47-2e8c-4389-8e09-d178335b04ea",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "MCxnuGrfIDFgs6Vj",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "id": "={{ $json.queueTrack }}"
+      },
+      "type": "n8n-nodes-base.spotify",
+      "typeVersion": 1,
+      "position": [
+        176,
+        176
+      ],
+      "id": "20fe7e7a-0a09-4c62-a0be-9574c470aad5",
+      "name": "Add a song to a queue",
+      "credentials": {
+        "spotifyOAuth2Api": {
+          "id": "cM17Iy4QrtON0bvT",
+          "name": "Spotify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "https://api.spotify.com/v1/me/player/play",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"uris\": [\"{{$json.firstTrack}}\"],\n  \"device_ids\": [\n    \"{{ $('Device1').item.json.devices[0].id }}\"\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -48,
+        -48
+      ],
+      "id": "1849ca06-3e1f-445a-8cb7-2c758b193003",
+      "name": "HTTP Request8",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7427524a-e5b9-49d3-821b-2ce3e1f8f3eb",
+              "leftValue": "={{ $json.firstTrack }}",
+              "rightValue": "=",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -112,
+        160
+      ],
+      "id": "d2b97977-d867-4183-b5b6-0ba7ed5e5ab3",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -2400,
+        400
+      ],
+      "id": "54914e05-b05d-40c0-a955-5cc48a5824d2",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "MCxnuGrfIDFgs6Vj",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.spotify_prompt }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an intent extractor for a Spotify voice assistant.\nUser speech input may contain spelling mistakes, slang, mixed languages, or incomplete phrases.\n\nYou must output EXACTLY ONE of the following intents:\n\n[\n  \"play_track\",\n  \"play_playlist\",\n  \"mood_music\",\n  \"pause\",\n  \"resume\",\n  \"next\",\n  \"previous\",\n  \"add_to_queue\",\n  \"set_volume\"\n]\n\n────────── OUTPUT RULES (MANDATORY) ──────────\n\n1. For these intents, you MUST return BOTH \"intent\" and \"query\":\n   - play_track\n   - play_playlist\n   - mood_music\n   - add_to_queue\n\n   Example:\n   {\"intent\": \"add_to_queue\", \"query\": \"believer imagine dragons\"}\n\n2. For these intents, you MUST return ONLY the intent (no query):\n   - pause\n   - resume\n   - next\n   - previous\n\n   Example:\n   {\"intent\": \"pause\"}\n\n3. For this intent you MUST return \"volume\":\n   - set_volume\n\n   Examples:\n   {\"intent\": \"set_volume\", \"volume\": \"50\"}\n   {\"intent\": \"set_volume\", \"volume\": \"+10\"}\n   {\"intent\": \"set_volume\", \"volume\": \"-10\"}\n\n────────── FIXED COMMAND MAPPINGS ──────────\n\n• “next”, “skip”\n  → intent = \"next\"\n\n• “previous”, “back”\n  → intent = \"previous\"\n\n• “pause”, “stop”\n  → intent = \"pause\"\n\n• “resume”, “continue”\n  → intent = \"resume\"\n\n────────── MUSIC INTENT LOGIC ──────────\n\nPLAY TRACK:\nIf the user requests a specific song (with or without artist),\n→ {\"intent\": \"play_track\", \"query\": \"<normalized text>\"}\n\nADD TO QUEUE:\nIf the user asks to add something to queue,\n→ {\"intent\": \"add_to_queue\", \"query\": \"<normalized text>\"}\n\nPLAY PLAYLIST:\nIf user mentions playlists by name or category,\n→ {\"intent\": \"play_playlist\", \"query\": \"<normalized text>\"}\n\nMOOD MUSIC:\nIf user describes mood / vibe / activity:\n(sad, chill, romantic, sleep, focus, study, workout, party)\n→ {\"intent\": \"mood_music\", \"query\": \"<normalized text>\"}\n\nVOLUME CONTROL:\n- “volume 50”, “set volume to 30” → absolute\n- “louder”, “turn it up” → \"+10\"\n- “quieter”, “turn it down” → \"-10\"\n- “mute”, “silence” → \"0\"\n\n────────── NORMALIZATION RULES ──────────\n\n- Correct obvious spelling mistakes.\n- Keep only meaningful search words.\n- Do NOT hallucinate track or artist names.\n- Do NOT output explanations.\n- Output JSON ONLY."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -2896,
+        240
+      ],
+      "id": "b4908e87-4085-436d-8b2e-05cd84256606",
+      "name": "Behaviour"
+    },
+    {
+      "parameters": {
+        "jsCode": "let raw = $json;\n\n// Case 1 — LLM returned a raw JSON string\nif (typeof raw === \"string\") {\n    try {\n        raw = JSON.parse(raw.trim());\n    } catch (e) {\n        throw new Error(\"LLM returned invalid JSON:\\n\" + raw);\n    }\n}\n\n// Case 2 — LLM returned { text: \"JSON...\" }\nif (raw && typeof raw === \"object\" && typeof raw.text === \"string\") {\n    try {\n        raw = JSON.parse(raw.text.trim());\n    } catch (e) {\n        throw new Error(\"Failed to parse JSON inside raw.text:\\n\" + raw.text);\n    }\n}\n\n// Case 3 — LLM returned { output: \"JSON...\" }\nif (raw && typeof raw === \"object\" && typeof raw.output === \"string\") {\n    try {\n        raw = JSON.parse(raw.output.trim());\n    } catch (e) {\n        throw new Error(\"Failed to parse JSON inside raw.output:\\n\" + raw.output);\n    }\n}\n\n// Validate structure\nif (!raw || typeof raw !== \"object\") {\n    throw new Error(\"LLM output is not a valid object:\\n\" + JSON.stringify(raw));\n}\n\nif (!raw.intent) {\n    throw new Error(\"Missing required field 'intent':\\n\" + JSON.stringify(raw));\n}\n\n// Ensure \"query\" exists for music intents\nif (!raw.query) raw.query = \"\";\n\n// Safety fallback for volume control\nif (raw.intent === \"set_volume\" && !raw.volume) {\n    raw.volume = \"+5\"; // default relative step\n}\n\nreturn [{ json: raw }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2592,
+        240
+      ],
+      "id": "b13dafac-af42-4e25-af06-47f93d3e63b6",
+      "name": "Normalize"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{\n  $json.query ||\n  $json.track ||\n  $json.artist ||\n  $json.playlist ||\n  $json.mood ||\n  \"\"\n}}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a fuzzy text normalizer for Spotify search input.\n\nYour task:\n1. Fix obvious spelling mistakes.\n2. Preserve ALL original words — do NOT guess real song or artist names.\n3. Do NOT invent or replace titles.\n4. Remove filler verbs such as:\n   \"play\", \"please\", \"can you\", \"put on\", \"turn on\",\n   \"включи\", \"поставь\", \"сыграй\", \"запусти\"\n5. Produce ONE clean search line that Spotify can match.\n\nIMPORTANT:\n- Do NOT hallucinate.\n- Do NOT rewrite user intent.\n- Only clean spelling and remove filler verbs.\n\nOutput must be a SINGLE LINE of plain text. No JSON.\n\nExamples:\n\nInput: \"belivar from imaging dragos\"\nOutput: \"believer imagine dragons\"\n\nInput: \"lofi melodi for sleep\"\nOutput: \"lofi melody sleep\"\n\nInput: \"lugovaya mari ya doam\"\nOutput: \"lugovaya mari ya doma\"\n\nInput: \"very sad music\"\nOutput: \"sad music\""
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -2400,
+        240
+      ],
+      "id": "9befcf99-9844-406a-ae91-21bb3672a049",
+      "name": "Soft data"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Normalize').item.json.intent }}",
+                    "rightValue": "play_track",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "902ca300-3d49-40cf-b55a-8d17fb05c51b"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8bd13b98-0353-4e45-a4b8-33cdc855cd69",
+                    "leftValue": "={{ $('Normalize').item.json.intent }}",
+                    "rightValue": "play_playlist",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "05cfe820-7de5-4765-821e-8f92d8dbc75f",
+                    "leftValue": "={{ $('Normalize').item.json.intent }}",
+                    "rightValue": "resume",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a67dc790-ebb9-4b57-883f-db4808a31393",
+                    "leftValue": "={{ $('Normalize').item.json.intent }}",
+                    "rightValue": "pause",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "fbd5fcd4-4dd0-4e4d-a3fb-31610372d9be",
+                    "leftValue": "={{ $('Normalize').item.json.intent }}",
+                    "rightValue": "mood_music",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "0bf91f6c-040b-48b9-8d57-fe2b80a9e06c",
+                    "leftValue": "={{ $('Normalize').item.json.intent }}",
+                    "rightValue": "add_to_queue",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b4dbd911-5fe4-46cf-8ac4-d47fbaefcc76",
+                    "leftValue": "={{ $('Normalize').item.json.intent }}",
+                    "rightValue": "previous",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ebe43a60-3739-440d-9a35-2bf991abd9af",
+                    "leftValue": "={{ $('Normalize').item.json.intent }}",
+                    "rightValue": "next",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "fef298ff-fa07-45f5-95ab-d341cde31318",
+                    "leftValue": "={{ $('Normalize').item.json.intent }}",
+                    "rightValue": "set_volume",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -2016,
+        384
+      ],
+      "id": "898cf068-4f37-4e65-b088-ab691348b3ee",
+      "name": "Task"
+    },
+    {
+      "parameters": {
+        "url": "https://api.spotify.com/v1/me/player/devices",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1232,
+        16
+      ],
+      "id": "b9435393-4f56-479a-a05d-123c913ac60a",
+      "name": "Device",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.spotify.com/v1/me/player/devices",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -992,
+        144
+      ],
+      "id": "2d8582c2-50cc-4667-a85c-4a539d5f0e7a",
+      "name": "Device1",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "https://api.spotify.com/v1/me/player/play",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"uris\": [\n    \"{{ $('Search and play').item.json.tracks.items[0].uri }}\"\n  ],\n  \"device_ids\": [\n    \"{{ $('Device').item.json.devices[0].id }}\"\n  ]\n}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -992,
+        16
+      ],
+      "id": "becc23ba-bc15-450e-8b0c-59476be596b8",
+      "name": "Play",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.spotify.com/v1/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "name": "type",
+              "value": "=track"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1536,
+        16
+      ],
+      "id": "258d4bf4-5dcb-4192-bcc7-d4f47529c584",
+      "name": "Search and play",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.spotify.com/v1/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $('Soft data').item.json.text }}"
+            },
+            {
+              "name": "type",
+              "value": "=playlist"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1536,
+        144
+      ],
+      "id": "80f68ab3-5899-4b94-ada6-5219dd27c70e",
+      "name": "Search playlist",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.spotify.com/v1/playlists/{{ $('Search playlist').item.json.playlists.items[0].id }}/tracks",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -784,
+        144
+      ],
+      "id": "d0318094-41b4-4166-a37a-7bf32a381910",
+      "name": "Get tracks",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let raw = $json.items || $json.uris || $json.tracks || $json;\n\n// 1. Если строка — разбиваем\nif (typeof raw === \"string\") {\n  raw = raw\n    .split(\",\")\n    .map(x => x.trim());\n}\n\n// 2. Если массив объектов — достаем track.uri\nif (Array.isArray(raw) && raw.length && raw[0].track) {\n  raw = raw\n    .map(x => x.track?.uri)\n    .filter(Boolean);\n}\n\n// 3. Если это массив строк — оставляем только валидные Spotify-треки\nif (Array.isArray(raw)) {\n  raw = raw.filter(uri => \n    typeof uri === \"string\" &&\n    uri.startsWith(\"spotify:track:\")\n  );\n}\n\n// 4. Если данных нет — возвращаем безопасный объект\nif (!Array.isArray(raw) || raw.length === 0) {\n  return [\n    { json: { firstTrack: null } }\n  ];\n}\n\n// Первый трек\nconst firstTrack = raw[0];\n\n// Остальные — очередь\nconst queue = raw.slice(1);\n\n// Создаём выходной массив n8n:\n// item 0 — первый трек\n// item 1..n — очередь\n\nconst output = [];\n\noutput.push({ json: { firstTrack } });\n\nfor (const track of queue) {\n  output.push({ json: { queueTrack: track } });\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        144
+      ],
+      "id": "cfbe8617-01f9-4630-a05b-37cb82421df2",
+      "name": "First/Queue normalizer"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -368,
+        144
+      ],
+      "id": "ded9c797-df94-4404-a1e5-2fa2334d0152",
+      "name": "First/Queue "
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "https://api.spotify.com/v1/me/player/play",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1536,
+        288
+      ],
+      "id": "b6da6ea0-f601-4959-b380-b39774877ac4",
+      "name": "Continue",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "https://api.spotify.com/v1/me/player/pause",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1536,
+        416
+      ],
+      "id": "83199d16-7b11-4562-817e-7b4a4411f197",
+      "name": "Pause",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.spotify.com/v1/me/player/queue",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "uri",
+              "value": "={{ $('Add queue').item.json.tracks.items[0].uri }}"
+            },
+            {
+              "name": "device_id",
+              "value": "={{ $json.devices[0].id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1024,
+        672
+      ],
+      "id": "b50a18a3-e1e3-4131-ab49-dec3a4c5466b",
+      "name": "Add in queue",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.spotify.com/v1/me/player/previous",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1536,
+        800
+      ],
+      "id": "e8dd76fd-88c8-4627-8feb-e724fd37d2a9",
+      "name": "Previous",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.spotify.com/v1/me/player/next",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1536,
+        928
+      ],
+      "id": "4d869d38-9d23-47f3-8f56-d1f2c83d8f7a",
+      "name": "Next",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.spotify.com/v1/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "name": "type",
+              "value": "=track"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1536,
+        672
+      ],
+      "id": "1b2236e3-4439-4812-8871-1b4d3e933917",
+      "name": "Add queue",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.spotify.com/v1/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "name": "type",
+              "value": "=playlist"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1536,
+        544
+      ],
+      "id": "fa8f05cf-94d4-46c4-80be-50184b33693b",
+      "name": "Mood",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.spotify.com/v1/me/player/devices",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1232,
+        672
+      ],
+      "id": "127014de-3aa4-465c-8174-f5bc7f7a1ebc",
+      "name": "Device2",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "id": "={{ $json.queueTrack }}"
+      },
+      "type": "n8n-nodes-base.spotify",
+      "typeVersion": 1,
+      "position": [
+        176,
+        560
+      ],
+      "id": "c226b6c9-27aa-4c5b-b218-1d4681baac8a",
+      "name": "Add a song to a queue2",
+      "credentials": {
+        "spotifyOAuth2Api": {
+          "id": "cM17Iy4QrtON0bvT",
+          "name": "Spotify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "https://api.spotify.com/v1/me/player/play",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"uris\": [\"{{$json.firstTrack}}\"],\n  \"device_ids\": [\n    \"{{ $('Device4').item.json.devices[0].id }}\"\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -48,
+        336
+      ],
+      "id": "b9f6a6f2-ce19-4d80-a28e-db9aa74d58e0",
+      "name": "HTTP Request18",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7427524a-e5b9-49d3-821b-2ce3e1f8f3eb",
+              "leftValue": "={{ $json.firstTrack }}",
+              "rightValue": "=",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -112,
+        544
+      ],
+      "id": "778ebde6-9cd7-4182-a10c-a59c6348cd14",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "url": "https://api.spotify.com/v1/me/player/devices",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -992,
+        528
+      ],
+      "id": "863bef31-321c-4856-9a59-01e68a2efbf9",
+      "name": "Device4",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.spotify.com/v1/playlists/{{ $('Mood').item.json.playlists.items[0].id }}/tracks",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -784,
+        528
+      ],
+      "id": "2c31ab8c-fc76-42b8-bd65-2b0484c23a3f",
+      "name": "Get tracks1",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let raw = $json.items || $json.uris || $json.tracks || $json;\n\n// 1. Если строка — разбиваем\nif (typeof raw === \"string\") {\n  raw = raw\n    .split(\",\")\n    .map(x => x.trim());\n}\n\n// 2. Если массив объектов — достаем track.uri\nif (Array.isArray(raw) && raw.length && raw[0].track) {\n  raw = raw\n    .map(x => x.track?.uri)\n    .filter(Boolean);\n}\n\n// 3. Если это массив строк — оставляем только валидные Spotify-треки\nif (Array.isArray(raw)) {\n  raw = raw.filter(uri => \n    typeof uri === \"string\" &&\n    uri.startsWith(\"spotify:track:\")\n  );\n}\n\n// 4. Если данных нет — возвращаем безопасный объект\nif (!Array.isArray(raw) || raw.length === 0) {\n  return [\n    { json: { firstTrack: null } }\n  ];\n}\n\n// Первый трек\nconst firstTrack = raw[0];\n\n// Остальные — очередь\nconst queue = raw.slice(1);\n\n// Создаём выходной массив n8n:\n// item 0 — первый трек\n// item 1..n — очередь\n\nconst output = [];\n\noutput.push({ json: { firstTrack } });\n\nfor (const track of queue) {\n  output.push({ json: { queueTrack: track } });\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        528
+      ],
+      "id": "04b751f0-1be3-4e97-b571-7376553ace79",
+      "name": "First/Queue normalizer1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -368,
+        528
+      ],
+      "id": "66b7b74d-de7b-48d4-ba67-d3d502a76b9e",
+      "name": "First/Queue 1"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "https://api.spotify.com/v1/me/player/play",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"context_uri\": \"spotify:playlist:EMPTY_ID\"\n}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1232,
+        528
+      ],
+      "id": "248992c3-73d5-48cf-bfd6-c38f9529b442",
+      "name": "Execute",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "https://api.spotify.com/v1/me/player/play",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"context_uri\": \"spotify:playlist:EMPTY_ID\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1232,
+        144
+      ],
+      "id": "803d84a9-03ef-4e43-b028-5816d9b9c26a",
+      "name": "Execute1",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.spotify.com/v1/me/player",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1536,
+        1056
+      ],
+      "id": "8382164c-dd20-42a1-9ae6-76169eed7b05",
+      "name": "HTTP Request",
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RgBIJoZoU7oAV5mZ",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -3360,
+        80
+      ],
+      "id": "444739ef-5c7c-43ca-9ea2-b863331197c7",
+      "name": "When chat message received",
+      "webhookId": "28f76626-b9e5-4321-90b6-e0fa800324bc",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -3520,
+        352
+      ],
+      "id": "7144e69e-3dc9-4ef6-b8d6-0f34b708a8d1",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8e35e785-9599-42b0-bcb0-cb986dee30dd",
+              "name": "spotify_prompt",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3312,
+        352
+      ],
+      "id": "7cdd5af0-2ad4-48c4-905f-bbaf96af4cb7",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Behaviour",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add a song to a queue": {
+      "main": [
+        [
+          {
+            "node": "First/Queue ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request8": {
+      "main": [
+        [
+          {
+            "node": "First/Queue ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request8",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add a song to a queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Soft data",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Behaviour": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "Soft data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Soft data": {
+      "main": [
+        [
+          {
+            "node": "Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Task": {
+      "main": [
+        [
+          {
+            "node": "Search and play",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Search playlist",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Continue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pause",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mood",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add queue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Previous",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Next",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Device": {
+      "main": [
+        [
+          {
+            "node": "Play",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Device1": {
+      "main": [
+        [
+          {
+            "node": "Get tracks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search and play": {
+      "main": [
+        [
+          {
+            "node": "Device",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search playlist": {
+      "main": [
+        [
+          {
+            "node": "Execute1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get tracks": {
+      "main": [
+        [
+          {
+            "node": "First/Queue normalizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "First/Queue normalizer": {
+      "main": [
+        [
+          {
+            "node": "First/Queue ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "First/Queue ": {
+      "main": [
+        [],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add queue": {
+      "main": [
+        [
+          {
+            "node": "Device2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Device2": {
+      "main": [
+        [
+          {
+            "node": "Add in queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mood": {
+      "main": [
+        [
+          {
+            "node": "Execute",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add a song to a queue2": {
+      "main": [
+        [
+          {
+            "node": "First/Queue 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request18": {
+      "main": [
+        [
+          {
+            "node": "First/Queue 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request18",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add a song to a queue2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Device4": {
+      "main": [
+        [
+          {
+            "node": "Get tracks1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get tracks1": {
+      "main": [
+        [
+          {
+            "node": "First/Queue normalizer1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "First/Queue normalizer1": {
+      "main": [
+        [
+          {
+            "node": "First/Queue 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "First/Queue 1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute": {
+      "main": [
+        [
+          {
+            "node": "Device4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute1": {
+      "main": [
+        [
+          {
+            "node": "Device1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Behaviour",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Behaviour",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2b0fbeb0-13f2-434a-8be1-ff95cf22f8cc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "777a108b11b162413b48666b7ee0943d35944693b81e6545a0628efbb723fbea"
+  },
+  "id": "6mInooK4UWgcwxFQ",
+  "tags": [
+    {
+      "updatedAt": "2025-11-29T17:04:25.964Z",
+      "createdAt": "2025-11-29T17:04:25.964Z",
+      "id": "Sk9eYnn92ZtQIR3y",
+      "name": "Hackathon2025"
+    }
+  ]
+}
